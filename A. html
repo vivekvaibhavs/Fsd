@@ -1,1 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spice Trail Bistro - Customer Ordering System</title>
+    <style>
+        /*
+        =============================
+        Theme & Reset CSS
+        =============================
+        */
+        :root {
+            /* Color Palette: maroon, dark orange, beige, brown */
+            --color-primary: #CC5500;   /* Dark Orange */
+            --color-secondary: #800000; /* Maroon */
+            --color-beige: #F5F5DC;     /* Beige/Cream */
+            --color-dark: #4A2C2A;      /* Dark Brown */
+            --color-light: #FFFFFF;     /* White */
+            --color-text: #444;
+            --font-main: 'Georgia', serif;
+            --font-accent: 'Helvetica Neue', sans-serif;
+            --header-height: 70px;
+        }
 
+        /* Basic Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-accent);
+            line-height: 1.6;
+            color: var(--color-text);
+            background-color: var(--color-beige);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-main);
+            color: var(--color-dark);
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--color-dark);
+            transition: color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--color-primary);
+            color: var(--color-light);
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            border-radius: 4px;
+        }
+        
+        .btn-secondary {
+            background-color: var(--color-dark);
+        }
+
+        .btn:hover {
+            background-color: var(--color-secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--color-primary);
+        }
+
+        .section {
+            padding: 80px 0;
+            min-height: 80vh;
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.5em;
+            color: var(--color-secondary);
+            border-bottom: 3px solid var(--color-primary);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        /*
+        =============================
+        1. Navigation
+        =============================
+        */
+
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--color-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            z-index: 1000;
+            height: var(--header-height);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .logo a {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: var(--color-beige);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+        }
+
+        .nav-list li {
+            margin-left: 25px;
+        }
+
+        .nav-list a {
+            color: var(--color-beige);
+            font-weight: 500;
+            padding: 5px 0;
+            position: relative;
+        }
+        
+        .nav-list a:hover {
+            color: var(--color-primary);
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: var(--color-beige);
+            margin: 4px 0;
+            transition: 0.4s;
+        }
+
+        /*
+        =============================
+        2. Home Section
+        =============================
+        */
+        #home {
+            padding-top: var(--header-height); 
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://picsum.photos/1920/1080?random=11') no-repeat center center/cover;
+            color: var(--color-light);
+        }
+
+        .hero-content h1 {
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            color: var(--color-light);
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+        }
+
+        .hero-content p {
+            font-size: 1.4em;
+            margin-bottom: 40px;
+            font-family: var(--font-main);
+            font-style: italic;
+        }
+
+        /*
+        =============================
+        4. Menu & Order Section
+        =============================
+        */
+        #menu-order {
+            background-color: var(--color-light);
+        }
+        
+        .order-layout {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .menu-section {
+            flex: 2;
+            min-width: 400px;
+        }
+        
+        .order-summary-section {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--color-beige);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 100px; /* Offset for sticky nav */
+            align-self: flex-start;
+            height: fit-content;
+        }
+        
+        /* Table Input & Validation */
+        .table-input-group {
+            background-color: var(--color-secondary);
+            color: var(--color-light);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .table-input-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .table-input-group input {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            text-align: center;
+        }
+        
+        #table-error {
+            color: #FFD700; /* Gold/Yellow error text */
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-item {
+            background-color: var(--color-beige);
+            border: 1px solid var(--color-primary);
+            border-radius: 6px;
+            padding: 15px;
+            transition: box-shadow 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+        
+        .item-info .name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--color-dark);
+        }
+        
+        .item-info .price {
+            font-size: 1em;
+            color: var(--color-secondary);
+        }
+        
+        .menu-item .btn {
+            padding: 8px 15px;
+            margin-left: 10px;
+        }
+
+        /* Order Summary Styles */
+        .order-summary-section h3 {
+            text-align: center;
+            color: var(--color-secondary);
+            margin-bottom: 20px;
+        }
+
+        #order-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #order-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ccc;
+            font-size: 0.95em;
+        }
+        
+        .order-item-qty {
+            font-weight: bold;
+            margin-right: 5px;
+            color: var(--color-primary);
+        }
+
+        #grand-total {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid var(--color-secondary);
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--color-dark);
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--color-secondary);
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: color 0.2s;
+        }
+        .remove-btn:hover {
+            color: red;
+        }
+
+        /* Confirmation Message */
+        #order-confirmation {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 30px;
+            background-color: #38761d; /* Green success color */
+            color: var(--color-light);
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            z-index: 3000;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        #order-confirmation .details {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            font-weight: normal;
+        }
+        
+        #order-list-empty {
+            text-align: center;
+            color: var(--color-text);
+            padding: 20px 0;
+            font-style: italic;
+        }
+
+
+        /*
+        =============================
+        5. Branches & Contact Section
+        =============================
+        */
+        #contact {
+            background-color: var(--color-beige);
+        }
+
+        .contact-content {
+            display: flex;
+            gap: 40px;
+        }
+
+        .branches-info {
+            flex: 2;
+        }
+
+        .contact-form {
+            flex: 1;
+            background-color: var(--color-light);
+            padding: 25px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .branch-card {
+            background-color: var(--color-light);
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--color-secondary);
+            border-radius: 4px;
+        }
+
+        .branch-card h3 {
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        .opening-hours {
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--color-dark);
+            margin: 30px 0;
+            padding: 10px;
+            background-color: rgba(204, 85, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group textarea,
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+
+        /*
+        =============================
+        6. Footer
+        =============================
+        */
+        .footer {
+            background-color: var(--color-dark);
+            color: var(--color-beige);
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .social-links {
+            margin-top: 10px;
+        }
+
+        .social-links a {
+            color: var(--color-beige);
+            margin: 0 10px;
+            font-weight: 500;
+        }
+
+        .social-links a:hover {
+            color: var(--color-primary);
+        }
+        
+        /*
+        =============================
+        Media Queries (Responsiveness)
+        =============================
+        */
+        @media (max-width: 992px) {
+            .hero-content h1 {
+                font-size: 3.5em;
+            }
+            .order-layout {
+                flex-direction: column;
+            }
+            .order-summary-section {
+                position: relative;
+                top: 0;
+            }
+            .contact-content {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-list {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: var(--header-height);
+                left: 0;
+                width: 100%;
+                background-color: var(--color-dark);
+                padding: 10px 0;
+                box-shadow: 0 5px 5px rgba(0,0,0,0.2);
+            }
+
+            .nav-list.active {
+                display: flex;
+            }
+
+            .nav-list li {
+                margin: 5px 0;
+                text-align: center;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero-content h1 {
+                font-size: 2.8em;
+            }
+            .hero-content p {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container nav-container">
+            <div class="logo"><a href="#home">Spice Trail Bistro</a></div>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about-us">About Us</a></li>
+                    <li><a href="#menu-order">Menu & Order</a></li>
+                    <li><a href="#contact">Branches / Contact</a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </header>
+
+    <section id="home">
+        <div class="hero-content">
+            <h1>Spice Trail Bistro</h1>
+            <p>Where Flavors Tell a Story</p>
+            <a href="#menu-order" class="btn">Order Now</a>
+        </div>
+    </section>
+
+    <section id="about-us" class="section">
+        <div class="container">
+            <h2>About Us</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        At **Spice Trail Bistro**, we bring authentic Indian flavors with a modern twist. We use freshly sourced ingredients, hand-picked spices, and experienced chefs to serve dishes that satisfy both the heart and appetite. Our restaurant offers a cozy ambiance, making it perfect for families, friends, and celebrations.
+                    </p>
+                </div>
+                <div class="about-bullets">
+                    <h3>Our Commitment</h3>
+                    <ul>
+                        <li>Fresh and quality ingredients</li>
+                        <li>Hygienic kitchen standards</li>
+                        <li>Friendly staff and quick service</li>
+                        <li>Rated 4.7★ by thousands of customers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu-order" class="section">
+        <div class="container">
+            <h2>Menu & Order</h2>
+            <div class="order-layout">
+                <div class="menu-section">
+                    <h3 style="color: var(--color-primary); margin-bottom: 20px;">Starters (Quick Bites)</h3>
+                    <div class="menu-grid" id="menu-grid">
+                        </div>
+                </div>
+
+                <div class="order-summary-section">
+                    <div class="table-input-group">
+                        <label for="table-number">Enter Table Number (1-10)</label>
+                        <input type="number" id="table-number" min="1" max="10" placeholder="e.g. 5" required>
+                        <p id="table-error" class="error-message">Please enter a valid table number between 1 and 10.</p>
+                    </div>
+
+                    <h3>Your Order Summary</h3>
+                    <ul id="order-list">
+                        <li id="order-list-empty">Your order is currently empty.</li>
+                    </ul>
+                    
+                    <div id="grand-total">
+                        <span>Grand Total:</span>
+                        <span id="total-amount">₹0.00</span>
+                    </div>
+
+                    <button class="btn" style="width: 100%; margin-top: 25px;" onclick="placeOrder()">Place Order</button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="clearOrder()">Clear Order</button>
+                    <p id="order-validation-error" style="color: var(--color-secondary); margin-top: 10px; text-align: center; font-weight: bold; display: none;"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <div class="container">
+            <h2>Branches & Contact</h2>
+            <div class="opening-hours">
+                🕰️ Daily: 11:00 AM – 11:00 PM
+            </div>
+            <div class="contact-content">
+                <div class="branches-info">
+                    <div class="branch-card">
+                        <h3>Main Branch – Indiranagar</h3>
+                        <p>Spice Trail Bistro</p>
+                        <p>12th Main Road, 2nd Stage, Indiranagar</p>
+                        <p>Bengaluru – 560038</p>
+                        <p><strong>Phone:</strong> +91-98765 43210</p>
+                        <p><strong>Email:</strong> hello@spicetrailbistro.com</p>
+                    </div>
+
+                    <div class="branch-card">
+                        <h3>Koramangala Branch</h3>
+                        <p>80 Feet Road, 4th Block, Koramangala</p>
+                        <p>Bengaluru – 560095</p>
+                        <p><strong>Phone:</strong> +91-98765 43211</p>
+                    </div>
+
+                    <div class="branch-card">
+                        <h3>Whitefield Branch</h3>
+                        <p>ITPL Main Road, Near Tech Park, Whitefield</p>
+                        <p>Bengaluru – 560066</p>
+                        <p><strong>Phone:</strong> +91-98765 43212</p>
+                    </div>
+
+                    <div class="branch-card">
+                        <h3>Jayanagar Branch</h3>
+                        <p>22nd Cross Road, 3rd Block, Jayanagar</p>
+                        <p>Bengaluru – 560041</p>
+                        <p><strong>Phone:</strong> +91-98765 43213</p>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h3>Send Us a Message</h3>
+                    <form onsubmit="alert('Thank you! Your message has been sent to Spice Trail Bistro.'); return false;">
+                        <div class="form-group">
+                            <label for="name-input">Name</label>
+                            <input type="text" id="name-input" required>
+                        </div>
